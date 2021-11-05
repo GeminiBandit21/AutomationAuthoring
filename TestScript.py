@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC, wait
 from selenium.webdriver.support.ui import Select
+from selenium.common.exceptions import TimeoutException
 import time
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import PatternFill
@@ -67,6 +68,13 @@ def RetreiveQID():
     global driver, i
     QIDName = driver.find_element_by_class_name("modal-body").text
     QIDCell = ws['N'+str(i)]
+    if questionType.value == "Multiple Choice":
+        QIDCell.fill = PatternFill(fgColor='29FF49', fill_type='solid')
+    #elif ws['C'+str(i)].value.lower() == "mcwi":
+     #   QIDCell.fill = PatternFill(fgColor='34B1EB', fill_type='solid')
+    else:
+        QIDCell.fill = PatternFill(fgColor='FF4229', fill_type='solid')
+
     QIDCell.value = str(QIDName).strip(
         "Question successfully created. Question ID: ")
     wb.save(ExcelFileName)
@@ -78,9 +86,9 @@ def QuestionTypeClicker():
     openQuestionDD = WebDriverWait(driver, 15).until(
         EC.element_to_be_clickable((By.XPATH, ('//*[@id="questionTypeContainer"]/div[2]/span[1]/span/span[1]'))))
     openQuestionDD.click()
-    if questionType.value.lower() == 'multiple choice' or questionType.value.lower() == 'choose' or questionType.value.lower() == 'multiple':
+    if questionType.value.lower() == 'multiple choice' or questionType.value.lower() == 'choose' or questionType.value.lower() == 'multiple' or questionType.value.lower() == 'mcwi':
         questionType.value = 'Multiple Choice'
-    elif questionType.value.lower() == "dnd":
+    elif questionType.value.lower() == "dnd" or questionType.value.lower() == "drag and match":
         questionType.value = 'Drag and Match'
     elif questionType.value.lower() == 'applications':
         questionType.value = 'Application'
@@ -153,67 +161,13 @@ def QuestionCreation():
                     ).click()
                     correctAnswerIndex += 1
                     allAnswersClicked += 1
-                    #print(str(allAnswersClicked) + ' :number of answers Clicked')
-                    #print(str(correctanswerAmount) + ' :amount of correct answers')
                     time.sleep(1)
             if (int(amountofAnswers)-1) != answerIndex:
                 ClickMoreAnswer()
                 time.sleep(1)
                 #print(str(answerIndex) + "current answer index")
             answerIndex += 1
-    # elif questionType.value == 'Drag and Match':
 
-    #     while answerIndex < amountofAnswers:
-    #         if answerIndex == 0:
-    #             DragOption = WebDriverWait(driver, 15).until(
-    #                 EC.frame_to_be_available_and_switch_to_it(
-    #                     (By.XPATH, '//*[@id="cke_3_contents"]/iframe'))
-    #             )
-    #             WebDriverWait(driver, 15).until(EC.element_to_be_clickable((
-    #                 By.XPATH, '/html/body/p'))).send_keys(DragOptionToBeEntered)
-    #             driver.switch_to.default_content()
-
-    #             DropTarget = WebDriverWait(driver, 15).until(
-    #                 EC.frame_to_be_available_and_switch_to_it(
-    #                     (By.XPATH, '//*[@id="cke_4_contents"]/iframe'))
-    #             )
-    #             WebDriverWait(driver, 15).until(EC.element_to_be_clickable((
-    #                 By.XPATH, '/html/body/p'))).send_keys(DropTargetToBeEntered)
-    #             driver.switch_to.default_content()
-    #         elif answerIndex == 2:
-    #             DragOption = WebDriverWait(driver, 15).until(
-    #                 EC.frame_to_be_available_and_switch_to_it(
-    #                     (By.XPATH, '//*[@id="cke_298_contents"]/iframe'))
-    #             )
-    #             WebDriverWait(driver, 15).until(EC.element_to_be_clickable((
-    #                 By.XPATH, '/html/body/p'))).send_keys(DragOptionToBeEntered)
-    #             driver.switch_to.default_content()
-
-    #             DropTarget = WebDriverWait(driver, 15).until(
-    #                 EC.frame_to_be_available_and_switch_to_it(
-    #                     (By.XPATH, '//*[@id="cke_299_contents"]/iframe'))
-    #             )
-    #             WebDriverWait(driver, 15).until(EC.element_to_be_clickable((
-    #                 By.XPATH, '/html/body/p'))).send_keys(DropTargetToBeEntered)
-    #             driver.switch_to.default_content()
-    #         elif answerIndex == 1:
-    #             DragOption = WebDriverWait(driver, 15).until(
-    #                 EC.frame_to_be_available_and_switch_to_it(
-    #                     (By.XPATH, '//*[@id="cke_214_contents"]/iframe'))
-    #             )
-    #             WebDriverWait(driver, 15).until(EC.element_to_be_clickable((
-    #                 By.XPATH, '/html/body/p'))).send_keys(DragOptionToBeEntered)
-    #             driver.switch_to.default_content()
-
-    #             DropTarget = WebDriverWait(driver, 15).until(
-    #                 EC.frame_to_be_available_and_switch_to_it(
-    #                     (By.XPATH, '//*[@id="cke_215_contents"]/iframe'))
-    #             )
-    #             WebDriverWait(driver, 15).until(EC.element_to_be_clickable((
-    #                 By.XPATH, '/html/body/p'))).send_keys(DropTargetToBeEntered)
-    #             driver.switch_to.default_content()
-            ##answerIndex += 1
-            # ClickMoreAnswer()
     FinallyCreateQuestionButton()
     RetreiveQID()
     CloseQIDMenu = WebDriverWait(driver, 15).until(
@@ -292,6 +246,7 @@ def LoginAndOpenQuestionInput():
                                         ))
         )
         categorySelected.click()
+
         # Opening Product Drop Down List
         openProductDD = WebDriverWait(driver, 15).until(
             EC.presence_of_element_located((By.XPATH, ('/html/body/div[2]/form/div[1]/div/div/div[2]/div[2]/span[1]/span/span[1]'))))
@@ -380,7 +335,78 @@ root.mainloop()
 # ~~~~~~~~~~~Made By Diana Cervantes ~~~~~~~~~~~~~ Project: Question Creation Automation
 
 
+# Notes
+# Working Question Types:
+# Multiple Choice Works without issue- Marks Green
+# IFrame Works missing template input - Marks Red will mark Yellow since Template issue
+# Application- Creates QID does not add Sample Doc or Templates!!
+# Drag and Match or DND: Creates Question does not add answers!! Marks Red
+# Categorize-Marks Red missing categories
+# Drop Down List-Code Red Will need to input the drop downs
+# Short Answer - Marks red
+
+# Fails
+# Hotspot- Fills Name, Obj, SubObj,HelpText, Instructions. doesn't input template or hotspot locations will fail!
+# Drag to Paragraph-Does not Working
+# Fill in the Blank-Fails could work would need to add the fill in the blank info
+# Paragraph Dropdown - Needs the Dropdowns added
+# Simulation - Working just needs tweaking on the final create Question button would mark Red
+# Multiple Yes/No- fails could work with tweaking requires to answers
+# Single True False  - could work with tweaking requires answers to work
 
 
+# Just in Case Graveyard Code
 
+# elif questionType.value == 'Drag and Match':
 
+#     while answerIndex < amountofAnswers:
+#         if answerIndex == 0:
+#             DragOption = WebDriverWait(driver, 15).until(
+#                 EC.frame_to_be_available_and_switch_to_it(
+#                     (By.XPATH, '//*[@id="cke_3_contents"]/iframe'))
+#             )
+#             WebDriverWait(driver, 15).until(EC.element_to_be_clickable((
+#                 By.XPATH, '/html/body/p'))).send_keys(DragOptionToBeEntered)
+#             driver.switch_to.default_content()
+
+#             DropTarget = WebDriverWait(driver, 15).until(
+#                 EC.frame_to_be_available_and_switch_to_it(
+#                     (By.XPATH, '//*[@id="cke_4_contents"]/iframe'))
+#             )
+#             WebDriverWait(driver, 15).until(EC.element_to_be_clickable((
+#                 By.XPATH, '/html/body/p'))).send_keys(DropTargetToBeEntered)
+#             driver.switch_to.default_content()
+#         elif answerIndex == 2:
+#             DragOption = WebDriverWait(driver, 15).until(
+#                 EC.frame_to_be_available_and_switch_to_it(
+#                     (By.XPATH, '//*[@id="cke_298_contents"]/iframe'))
+#             )
+#             WebDriverWait(driver, 15).until(EC.element_to_be_clickable((
+#                 By.XPATH, '/html/body/p'))).send_keys(DragOptionToBeEntered)
+#             driver.switch_to.default_content()
+
+#             DropTarget = WebDriverWait(driver, 15).until(
+#                 EC.frame_to_be_available_and_switch_to_it(
+#                     (By.XPATH, '//*[@id="cke_299_contents"]/iframe'))
+#             )
+#             WebDriverWait(driver, 15).until(EC.element_to_be_clickable((
+#                 By.XPATH, '/html/body/p'))).send_keys(DropTargetToBeEntered)
+#             driver.switch_to.default_content()
+#         elif answerIndex == 1:
+#             DragOption = WebDriverWait(driver, 15).until(
+#                 EC.frame_to_be_available_and_switch_to_it(
+#                     (By.XPATH, '//*[@id="cke_214_contents"]/iframe'))
+#             )
+#             WebDriverWait(driver, 15).until(EC.element_to_be_clickable((
+#                 By.XPATH, '/html/body/p'))).send_keys(DragOptionToBeEntered)
+#             driver.switch_to.default_content()
+
+#             DropTarget = WebDriverWait(driver, 15).until(
+#                 EC.frame_to_be_available_and_switch_to_it(
+#                     (By.XPATH, '//*[@id="cke_215_contents"]/iframe'))
+#             )
+#             WebDriverWait(driver, 15).until(EC.element_to_be_clickable((
+#                 By.XPATH, '/html/body/p'))).send_keys(DropTargetToBeEntered)
+#             driver.switch_to.default_content()
+##answerIndex += 1
+# ClickMoreAnswer()
