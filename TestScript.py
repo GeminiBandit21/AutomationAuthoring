@@ -4,12 +4,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC, wait
 from selenium.webdriver.support.ui import Select
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, ElementClickInterceptedException, NoSuchElementException
 import time
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import PatternFill
 import tkinter as tk
+import tkinter.font as tkFont
 from tkinter import *
+from tkinter import messagebox, LabelFrame, Frame
 
 
 ExcelFileName = 'AutomationTest.xlsx'
@@ -41,6 +43,43 @@ correctAnswerIndex = 0
 #print("Amount of Total Answers"+str(amountofAnswers))
 
 
+def SheetChecker():
+    global i, questionType, QuestionName, InstructionsToBeEntered, HelpTextToBeEntered, DropTargetToBeEntered, CorrectAnswerCell, Objective, SubObjective, correctanswerAmount, amountofAnswers
+    print(str(i)+" before")
+    i += 1
+    if ws.max_row != (i-1):
+        print(str(ws.max_row) + ' Max Row Number')
+        global CorrectAnswerCellList, ObjectivesCell
+        questionType = ws['C'+str(i)]
+        QuestionName = ws['B'+str(i)]
+        InstructionsToBeEntered = ws['D'+str(i)]
+        HelpTextToBeEntered = ws['H'+str(i)]
+        DragOptionToBeEntered = ws['E'+str(i)]
+        DropTargetToBeEntered = 'Drop Target Entered'
+        CorrectAnswerCell = ws['F'+str(i)]
+        CorrectAnswerCellList = ws['F'+str(i)]
+        ObjectivesCell = ws['J'+str(i)]
+        ObjectivesCell = str(ObjectivesCell.value).split('\n')
+        Objective = str(ObjectivesCell[0])
+        SubObjective = str(ObjectivesCell[1])
+        correctanswerAmount = len(str(CorrectAnswerCellList.value).split('\n'))
+        amountofAnswers = len(str(DragOptionToBeEntered.value).split('\n'))
+        print(str(i)+" after")
+        QuestionTypeClicker()
+        QuestionCreation()
+    else:
+        print("Finished cycling!!")
+    # print(str(DragOptionToBeEntered.value).split('\n'))
+    #print(str(i) + " :This is the i value")
+
+
+def TimeoutErrorMessage():
+    global QIDCell
+    QIDCell.fill = PatternFill(fgColor='34B1EB', fill_type='solid')
+    QIDCell.value = "Question Failed To Create"
+    wb.save(ExcelFileName)
+
+
 def ClickMoreAnswer():
     global driver
     if amountofAnswers > answerIndex:
@@ -65,12 +104,12 @@ def FinallyCreateQuestionButton():
 
 
 def RetreiveQID():
-    global driver, i
+    global driver, i, QIDCell, QIDName
     QIDName = driver.find_element_by_class_name("modal-body").text
     QIDCell = ws['N'+str(i)]
     if questionType.value == "Multiple Choice":
         QIDCell.fill = PatternFill(fgColor='29FF49', fill_type='solid')
-    #elif ws['C'+str(i)].value.lower() == "mcwi":
+    # elif ws['C'+str(i)].value.lower() == "mcwi":
      #   QIDCell.fill = PatternFill(fgColor='34B1EB', fill_type='solid')
     else:
         QIDCell.fill = PatternFill(fgColor='FF4229', fill_type='solid')
@@ -104,7 +143,8 @@ def QuestionTypeClicker():
 
 
 def QuestionCreation():
-    global questionType, QuestionName, answerIndex, amountofAnswers, DragOptionToBeEntered, DropTargetToBeEntered, InstructionsToBeEntered, HelpTextToBeEntered, i, driver, allAnswersClicked, Objective, SubObjective, correctanswerAmount, correctAnswerIndex, CorrectAnswerCell
+    global questionType, QuestionName, answerIndex, amountofAnswers, DragOptionToBeEntered, DropTargetToBeEntered, InstructionsToBeEntered, HelpTextToBeEntered, i, driver, allAnswersClicked, Objective, SubObjective, correctanswerAmount
+    global correctAnswerIndex, CorrectAnswerCell, QIDCell, ErrorMessage
     # Inputting Question Name
     time.sleep(1)
     questionNameEntry = WebDriverWait(driver, 15).until(
@@ -112,16 +152,25 @@ def QuestionCreation():
     #questionNameEntry = driver.find_element_by_id("QuestionName")
     questionNameEntry.send_keys(QuestionName.value)
     # Opens Objective Menu
-    objectiveDD = WebDriverWait(driver, 20).until(
-        EC.presence_of_element_located((By.XPATH, '//*[@id="ObjectiveId"]'
-                                        ))
-    )
-    objectiveDD.click()
+    try:
+        objectiveDD = WebDriverWait(driver, 20).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="ObjectiveId"]'
+                                            ))
+        )
+        objectiveDD.click()
+    except:
+        print("Object failed to Match any listed under this product")
+        ErrorMessage = "Object failed to Match any listed under this product"
+        TimeoutErrorMessage()
+        ErrorWindowDefault()
+        SheetChecker()
+        ResetWindow()
+        LoginAndOpenQuestionInput()
+
     time.sleep(1)
     selectionOBJ = Select(driver.find_element_by_xpath(
         "//select[@name='ObjectiveId']"))
     selectionOBJ.select_by_visible_text(Objective.strip(" "))
-
     # Opens subObjective Drop Down
     subObjectiveDD = WebDriverWait(driver, 20).until(
         EC.presence_of_element_located(
@@ -131,7 +180,15 @@ def QuestionCreation():
     time.sleep(1)
     selectionSubOBJ = Select(driver.find_element_by_xpath(
         "//select[@name='ddlSubObjective']"))
-    selectionSubOBJ.select_by_visible_text(SubObjective.strip(" "))
+    try:
+        selectionSubOBJ.select_by_visible_text(SubObjective.strip(" "))
+    except TimeoutException or ElementClickInterceptedException or NoSuchElementException:
+        ErrorMessage = "SubObjective does not match any listed under this product, Click OK to cycle to next Question"
+        ErrorWindowDefault()
+        TimeoutErrorMessage()
+        SheetChecker()
+        print("SubObjective does not match any listed under this product")
+
     time.sleep(1)
     # Instructions
     InstructionFrame = WebDriverWait(driver, 20).until(
@@ -175,39 +232,13 @@ def QuestionCreation():
             (By.XPATH, '//*[@id="successfulUpdateModal"]/div/div/div[1]/button/span'))
     )
     CloseQIDMenu.click()
-    print(str(i)+" before")
-    i += 1
-    if ws.max_row != (i-1):
-        print(str(ws.max_row) + ' Max Row Number')
-        global CorrectAnswerCellList, ObjectivesCell
-        questionType = ws['C'+str(i)]
-        QuestionName = ws['B'+str(i)]
-        InstructionsToBeEntered = ws['D'+str(i)]
-        HelpTextToBeEntered = ws['H'+str(i)]
-        DragOptionToBeEntered = ws['E'+str(i)]
-        DropTargetToBeEntered = 'Drop Target Entered'
-        CorrectAnswerCell = ws['F'+str(i)]
-        CorrectAnswerCellList = ws['F'+str(i)]
-        ObjectivesCell = ws['J'+str(i)]
-        ObjectivesCell = str(ObjectivesCell.value).split('\n')
-        Objective = str(ObjectivesCell[0])
-        SubObjective = str(ObjectivesCell[1])
-        correctanswerAmount = len(str(CorrectAnswerCellList.value).split('\n'))
-        amountofAnswers = len(str(DragOptionToBeEntered.value).split('\n'))
-        print(str(i)+" after")
-        QuestionTypeClicker()
-        QuestionCreation()
-
-    else:
-        print("Finished cycling!!")
-    # print(str(DragOptionToBeEntered.value).split('\n'))
-    #print(str(i) + " :This is the i value")
+    SheetChecker()
 
 
 def LoginAndOpenQuestionInput():
-    global Username, Password, driver, categoryName, productName
-
+    global Username, Password, driver, categoryName, productName, ErrorMessage, ErrorWindow
     if not driver:
+
         Username = Username_var.get()
         Password = Password_var.get()
         categoryName = " " + Category_var.get()
@@ -240,13 +271,13 @@ def LoginAndOpenQuestionInput():
         openCategoryDD = driver.find_element_by_css_selector(
             'span[class="k-input"]')
         openCategoryDD.click()
+
         # Clicking Category Selected
-        categorySelected = WebDriverWait(driver, 20).until(
+        categorySelected = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, '//*[@id="Category-list"]//li[text() = "'+categoryName+'"]'
                                         ))
         )
         categorySelected.click()
-
         # Opening Product Drop Down List
         openProductDD = WebDriverWait(driver, 15).until(
             EC.presence_of_element_located((By.XPATH, ('/html/body/div[2]/form/div[1]/div/div/div[2]/div[2]/span[1]/span/span[1]'))))
@@ -258,6 +289,7 @@ def LoginAndOpenQuestionInput():
                                         ))
         )
         productSelected.click()
+
         time.sleep(2)
         # Opening Question Drop Down List
         # Inputing the Question Type
@@ -270,89 +302,104 @@ def LoginAndOpenQuestionInput():
         QuestionCreation()
 
 
-root = Tk()
+def DisplayStartWindow():
+    global driver, check, PasswordInput, Password_var, UsernameInput, Username_var, Category_var, Product_var, ExcelName_var, root
+    root = Tk()
+    ErrorMessage = ""
+    Username_var = StringVar()
+    Password_var = StringVar()
+    Category_var = StringVar()
+    Product_var = StringVar()
+    ExcelName_var = StringVar()
+    root.title("Question Creation")
+    driver = None
+    root.geometry('1000x800')
+    root.configure(background="#1e2124")
+    LabelFontStyle = tkFont.Font(family="Lucida Grande", size=12)
 
-Username_var = StringVar()
-Password_var = StringVar()
-Category_var = StringVar()
-Product_var = StringVar()
-ExcelName_var = StringVar()
-root.title("Question Creation")
-driver = None
-root.geometry('600x300')
-root.configure(background="#1e2124")
+    #Color Library
+    mainColor = '#3e4e69'
+    secondColor = '#435e8a'
+    textColor ="#FFF"
+
+    # Creating menuFrame
+    menuFrame = LabelFrame(root, bg=mainColor)
+    menuFrame.pack(pady=50)
+
+    entryFrame = Frame(menuFrame, bg=secondColor)
+    entryFrame.pack(padx=50, pady=50)
+
+    productFrame= Frame(menuFrame, bg=secondColor)
+    productFrame.pack(padx=10, pady=10)
+
+    ProjectLabel = Label(menuFrame, text='Question Automation Tool', font=("Verdana bold", 20),
+                         bg=mainColor, fg=textColor)
+    ProjectLabel.place(x=80, y=0)
+
+    UsernameLabel = Label(entryFrame, text='Username :',
+                          bg=secondColor, fg=textColor, font=LabelFontStyle)
+    UsernameLabel.grid(row=1, column=1, padx=0)
+
+    UsernameInput = Entry(entryFrame, textvariable=Username_var,
+                          bg='#cfcfcf', width=25).grid(row=1, column=2, padx=0)
+
+    PasswordLabel = Label(entryFrame, text='Password :', font=LabelFontStyle,
+                          bg=secondColor, fg=textColor).grid(row=2, column=1, padx=20)
+
+    PasswordInput = Entry(entryFrame, textvariable=Password_var,
+                          bg='#cfcfcf', width=25, show='*')
+    PasswordInput.grid(row=2, column=2, padx=20)
+
+    check = Checkbutton(entryFrame, text='Show Password',
+                        command=show, bg=secondColor,fg=textColor,font=LabelFontStyle)
+    check.grid(row=2, column=3, padx=10)
+
+    CategoryLabel = Label(productFrame, text='Enter Category:',
+                           bg=secondColor, fg=textColor, font=LabelFontStyle).grid(row=1, column=1, padx=0)
+    CategoryInput = Entry(productFrame, textvariable=Category_var,
+                          bg='#cfcfcf', width=30).grid(row=1, column=2, padx=0)
+
+    ProductLabel = Label(productFrame, text='Enter Product:',
+                          bg=secondColor, fg=textColor,font=LabelFontStyle).grid(row=2, column=1, padx=0)
+    ProductInput = Entry(productFrame, textvariable=Product_var,
+                          bg='#cfcfcf', width=30).grid(row=2, column=2, padx=0)
+
+    Start = Button(root, text="Start", command=(
+        LoginAndOpenQuestionInput), fg='#FFF', bg='#63cbff', width=25).place(x=400, y=400)
+
+    # MessageDisplayed = Label(root, text="Status: " + ErrorMessage,
+    #                        bg='#1e2124',  fg='#FFF').place(x=10, y=250)
+    root.mainloop()
 
 
 def show():
     PasswordInput.configure(show='')
-    check.configure(command=hide, text='hide password')
+    check.configure(command=hide, text='Hide Password')
 
 
 def hide():
     PasswordInput.configure(show='*')
-    check.configure(command=show, text='show password')
+    check.configure(command=show, text='Show Password')
 
 
-ProjectLabel = Label(root, text='Question Automation Tool',
-                     background="#1e2124", foreground='#FFF').place(x=5, y=0)
-UsernameLabel = Label(root, text='Username:',
-                      background="#1e2124", foreground='#FFF').place(x=55, y=30)
-UsernameInput = Entry(root, textvariable=Username_var,
-                      background='#cfcfcf', width=25).place(x=125, y=30)
+def ErrorWindowDefault():
+    messagebox.showerror(title="Error", message=ErrorMessage)
 
-PasswordLabel = Label(root, text='Password:',
-                      background='#1e2124', foreground='#FFF').place(x=56, y=50)
 
-PasswordInput = Entry(root, textvariable=Password_var,
-                      background='#cfcfcf', width=25, show='*')
-PasswordInput.place(x=125, y=50)
+def ResetWindow():
+    root.destroy()
+    DisplayStartWindow()
 
-check = Checkbutton(root, text='show password',
-                    command=show)
-check.place(x=290, y=50)
 
-CategoryLabel = Label(root, text='Enter Category:',
-                      background='#1e2124', foreground='#FFF').place(x=20, y=85)
-CategoryInput = Entry(root, textvariable=Category_var,
-                      background='#cfcfcf', width=30).place(x=110, y=85)
-
-ProductLabel = Label(root, text='Enter Product:',
-                     background='#1e2124', foreground='#FFF').place(x=310, y=85)
-ProductInput = Entry(root, textvariable=Product_var,
-                     background='#cfcfcf', width=30).place(x=400, y=85)
-
-Start = Button(root, text="Start", command=(
-    LoginAndOpenQuestionInput), fg='#FFF', bg='#63cbff', width=25).place(x=200, y=200)
-
-root.mainloop()
-
+DisplayStartWindow()
 
 # .split('\n')
 """        categorySelected = WebDriverWait(driver, 20).until(
             EC.element_to_be_clickable((By.XPATH, '//*[@id="Category-list"]//li[text() = "'+categoryName+'"]'
                                         ))"""
 
+
 # ~~~~~~~~~~~Made By Diana Cervantes ~~~~~~~~~~~~~ Project: Question Creation Automation
-
-
-# Notes
-# Working Question Types:
-# Multiple Choice Works without issue- Marks Green
-# IFrame Works missing template input - Marks Red will mark Yellow since Template issue
-# Application- Creates QID does not add Sample Doc or Templates!!
-# Drag and Match or DND: Creates Question does not add answers!! Marks Red
-# Categorize-Marks Red missing categories
-# Drop Down List-Code Red Will need to input the drop downs
-# Short Answer - Marks red
-
-# Fails
-# Hotspot- Fills Name, Obj, SubObj,HelpText, Instructions. doesn't input template or hotspot locations will fail!
-# Drag to Paragraph-Does not Working
-# Fill in the Blank-Fails could work would need to add the fill in the blank info
-# Paragraph Dropdown - Needs the Dropdowns added
-# Simulation - Working just needs tweaking on the final create Question button would mark Red
-# Multiple Yes/No- fails could work with tweaking requires to answers
-# Single True False  - could work with tweaking requires answers to work
 
 
 # Just in Case Graveyard Code
