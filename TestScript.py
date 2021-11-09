@@ -12,6 +12,8 @@ import tkinter as tk
 import tkinter.font as tkFont
 from tkinter import *
 from tkinter import messagebox, LabelFrame, Frame
+from tkinter import ttk
+from ttkbootstrap import Style, Colors
 
 
 ExcelFileName = 'AutomationTest.xlsx'
@@ -303,8 +305,12 @@ def LoginAndOpenQuestionInput():
 
 
 def DisplayStartWindow():
-    global driver, check, PasswordInput, Password_var, UsernameInput, Username_var, Category_var, Product_var, ExcelName_var, root
+    global driver, check, PasswordInput, Password_var, UsernameInput, Username_var, Category_var, Product_var, ExcelName_var, root, style
     root = Tk()
+    style = Style(theme='cyborg')
+    Background = style.colors.bg
+    ToggleBGColor = style.colors.secondary
+    print(ToggleBGColor)
     ErrorMessage = ""
     Username_var = StringVar()
     Password_var = StringVar()
@@ -314,61 +320,58 @@ def DisplayStartWindow():
     root.title("Question Creation")
     driver = None
     root.geometry('1000x800')
-    root.configure(background="#1e2124")
+    root.configure(background=Background)
     LabelFontStyle = tkFont.Font(family="Lucida Grande", size=12)
 
-    #Color Library
-    mainColor = '#3e4e69'
-    secondColor = '#435e8a'
-    textColor ="#FFF"
 
     # Creating menuFrame
-    menuFrame = LabelFrame(root, bg=mainColor)
+    menuFrame = ttk.Frame(root, style='primary.TFrame')
     menuFrame.pack(pady=50)
 
-    entryFrame = Frame(menuFrame, bg=secondColor)
+    entryFrame = ttk.Frame(menuFrame, style='secondary.TFrame')
     entryFrame.pack(padx=50, pady=50)
 
-    productFrame= Frame(menuFrame, bg=secondColor)
+    productFrame = ttk.Frame(menuFrame, style='secondary.TFrame')
     productFrame.pack(padx=10, pady=10)
 
-    ProjectLabel = Label(menuFrame, text='Question Automation Tool', font=("Verdana bold", 20),
-                         bg=mainColor, fg=textColor)
+    ProjectLabel = ttk.Label(menuFrame, text='Question Automation Tool', font=("Verdana bold", 20),
+                             style='primary.Inverse.TLabel')
     ProjectLabel.place(x=80, y=0)
 
-    UsernameLabel = Label(entryFrame, text='Username :',
-                          bg=secondColor, fg=textColor, font=LabelFontStyle)
-    UsernameLabel.grid(row=1, column=1, padx=0)
+    UsernameLabel = ttk.Label(entryFrame, text='Username :',
+                              style='secondary.Inverse.TLabel', font=LabelFontStyle)
+    UsernameLabel.grid(row=1, column=1, padx=5, pady=5)
 
-    UsernameInput = Entry(entryFrame, textvariable=Username_var,
-                          bg='#cfcfcf', width=25).grid(row=1, column=2, padx=0)
+    UsernameInput = ttk.Entry(entryFrame, textvariable=Username_var,
+                              style='primary.TEntry', width=25).grid(row=1, column=2, padx=5)
 
-    PasswordLabel = Label(entryFrame, text='Password :', font=LabelFontStyle,
-                          bg=secondColor, fg=textColor).grid(row=2, column=1, padx=20)
+    PasswordLabel = ttk.Label(entryFrame, text='Password :', font=LabelFontStyle,
+                              style='secondary.Inverse.TLabel').grid(row=2, column=1, padx=10)
 
-    PasswordInput = Entry(entryFrame, textvariable=Password_var,
-                          bg='#cfcfcf', width=25, show='*')
+    PasswordInput = ttk.Entry(entryFrame, textvariable=Password_var,
+                              style='secondary.TEntry', width=25, show='*')
     PasswordInput.grid(row=2, column=2, padx=20)
 
-    check = Checkbutton(entryFrame, text='Show Password',
-                        command=show, bg=secondColor,fg=textColor,font=LabelFontStyle)
-    check.grid(row=2, column=3, padx=10)
+    check = ttk.Checkbutton(entryFrame, text='Show Password',
+                            command=show, style='success.Roundtoggle.Toolbutton')
+    check.grid(row=2, column=3, padx=10, pady=5)
 
-    CategoryLabel = Label(productFrame, text='Enter Category:',
-                           bg=secondColor, fg=textColor, font=LabelFontStyle).grid(row=1, column=1, padx=0)
-    CategoryInput = Entry(productFrame, textvariable=Category_var,
-                          bg='#cfcfcf', width=30).grid(row=1, column=2, padx=0)
+    CategoryLabel = ttk.Label(productFrame, text='Enter Category:',
+                              style='secondary.Inverse.TLabel', font=LabelFontStyle).grid(row=1, column=1, padx=10, pady=10)
+    CategoryInput = ttk.Entry(productFrame, textvariable=Category_var,
+                              style='primary.TEntry', width=30).grid(row=1, column=2, padx=10, pady=10)
 
-    ProductLabel = Label(productFrame, text='Enter Product:',
-                          bg=secondColor, fg=textColor,font=LabelFontStyle).grid(row=2, column=1, padx=0)
-    ProductInput = Entry(productFrame, textvariable=Product_var,
-                          bg='#cfcfcf', width=30).grid(row=2, column=2, padx=0)
+    ProductLabel = ttk.Label(productFrame, text='Enter Product:',
+                             style='secondary.Inverse.TLabel', font=LabelFontStyle).grid(row=2, column=1, padx=10, pady=10)
+    ProductInput = ttk.Entry(productFrame, textvariable=Product_var,
+                             style='primary.TEntry', width=30).grid(row=2, column=2, padx=10, pady=10)
 
     Start = Button(root, text="Start", command=(
         LoginAndOpenQuestionInput), fg='#FFF', bg='#63cbff', width=25).place(x=400, y=400)
 
     # MessageDisplayed = Label(root, text="Status: " + ErrorMessage,
     #                        bg='#1e2124',  fg='#FFF').place(x=10, y=250)
+    # ThemeToggle= Button(root, text="Change Theme",fg='#FFF', bg="#8149b3", command=(LightTheme())).place(x=200, y=600)
     root.mainloop()
 
 

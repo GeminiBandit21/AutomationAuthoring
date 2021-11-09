@@ -18,3 +18,4 @@ Paragraph Dropdown - Needs the Dropdowns added
 Simulation - Working just needs tweaking on the final create Question button would mark Red
 Multiple Yes/No- fails could work with tweaking requires to answers
 Single True False - could work with tweaking requires answers to work
+To create new styles type: python -m ttkcreator
