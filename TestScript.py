@@ -1,9 +1,8 @@
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC, wait
-from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import TimeoutException, ElementClickInterceptedException, NoSuchElementException
 import time
 from openpyxl import Workbook, load_workbook
@@ -11,39 +10,41 @@ from openpyxl.styles import PatternFill
 import tkinter as tk
 import tkinter.font as tkFont
 from tkinter import *
-from tkinter import messagebox, LabelFrame, Frame
-from tkinter import ttk
+from tkinter import messagebox, LabelFrame, Frame, filedialog, ttk
 from ttkbootstrap import Style, Colors
+import os
 
 
-ExcelFileName = 'AutomationTest.xlsx'
-wb = load_workbook(ExcelFileName)
-sheetindex = 0
-sheets = wb.sheetnames
-print("SheetNames: " + str(sheets))
-ws = wb.active
-i = 4
-questionType = ws['C'+str(i)]
-QuestionName = ws['B'+str(i)]
-InstructionsToBeEntered = ws['D'+str(i)]
-HelpTextToBeEntered = ws['H'+str(i)]
-DragOptionToBeEntered = ws['E'+str(i)]
-DropTargetToBeEntered = 'Drop Target Entered'
-CorrectAnswerCell = ws['F'+str(i)]
-CorrectAnswerCellList = ws['F'+str(i)]
-ObjectivesCell = ws['J'+str(i)]
-ObjectivesCell = str(ObjectivesCell.value).split('\n')
-Objective = str(ObjectivesCell[0])
-SubObjective = str(ObjectivesCell[1])
-TotalSheets = len(sheets)
-correctanswerAmount = len(str(CorrectAnswerCellList.value).split('\n'))
+#AutomationTest.xlsx
+def LoadingExcelInfo():
+    global sheetindex, questionType, QuestionName,InstructionsToBeEntered, HelpTextToBeEntered,DropTargetToBeEntered,CorrectAnswerCell,Objective,SubObjective,TotalSheets,correctanswerAmount,amountofAnswers,answerIndex,allAnswersClicked,correctAnswerIndex
+    #ExcelFileName = ''
+    wb = load_workbook(ExcelFileName)
+    sheetindex = 0
+    sheets = wb.sheetnames
+    print("SheetNames: " + str(sheets))
+    ws = wb.active
+    i = 4
+    questionType = ws['C'+str(i)]
+    QuestionName = ws['B'+str(i)]
+    InstructionsToBeEntered = ws['D'+str(i)]
+    HelpTextToBeEntered = ws['H'+str(i)]
+    DragOptionToBeEntered = ws['E'+str(i)]
+    DropTargetToBeEntered = 'Drop Target Entered'
+    CorrectAnswerCell = ws['F'+str(i)]
+    CorrectAnswerCellList = ws['F'+str(i)]
+    ObjectivesCell = ws['J'+str(i)]
+    ObjectivesCell = str(ObjectivesCell.value).split('\n')
+    Objective = str(ObjectivesCell[0])
+    SubObjective = str(ObjectivesCell[1])
+    TotalSheets = len(sheets)
+    correctanswerAmount = len(str(CorrectAnswerCellList.value).split('\n'))
 
-amountofAnswers = len(str(DragOptionToBeEntered.value).split('\n'))
-answerIndex = 0
-allAnswersClicked = 0
-correctAnswerIndex = 0
-#print("Amount of Total Answers"+str(amountofAnswers))
-
+    amountofAnswers = len(str(DragOptionToBeEntered.value).split('\n'))
+    answerIndex = 0
+    allAnswersClicked = 0
+    correctAnswerIndex = 0
+    #print("Amount of Total Answers"+str(amountofAnswers))
 
 def SheetChecker():
     global i, questionType, QuestionName, InstructionsToBeEntered, HelpTextToBeEntered, DropTargetToBeEntered, CorrectAnswerCell, Objective, SubObjective, correctanswerAmount, amountofAnswers
@@ -74,13 +75,11 @@ def SheetChecker():
     # print(str(DragOptionToBeEntered.value).split('\n'))
     #print(str(i) + " :This is the i value")
 
-
 def TimeoutErrorMessage():
     global QIDCell
     QIDCell.fill = PatternFill(fgColor='34B1EB', fill_type='solid')
     QIDCell.value = "Question Failed To Create"
     wb.save(ExcelFileName)
-
 
 def ClickMoreAnswer():
     global driver
@@ -89,7 +88,6 @@ def ClickMoreAnswer():
         CreateAnotherAnswer = driver.find_element_by_id(
             "AddAnswer0"+str(answerIndex))
         CreateAnotherAnswer.click()
-
 
 def FinallyCreateQuestionButton():
     global driver, questionType
@@ -103,7 +101,6 @@ def FinallyCreateQuestionButton():
             EC.element_to_be_clickable((By.ID, 'OnClickCreateQuestion'))
         ).click()
     time.sleep(2)
-
 
 def RetreiveQID():
     global driver, i, QIDCell, QIDName
@@ -120,7 +117,6 @@ def RetreiveQID():
         "Question successfully created. Question ID: ")
     wb.save(ExcelFileName)
     print(QIDName)
-
 
 def QuestionTypeClicker():
     global driver, questionType
@@ -142,7 +138,6 @@ def QuestionTypeClicker():
     )
     print("Question Type: " + questionType.value)
     questionTypeSelected.click()
-
 
 def QuestionCreation():
     global questionType, QuestionName, answerIndex, amountofAnswers, DragOptionToBeEntered, DropTargetToBeEntered, InstructionsToBeEntered, HelpTextToBeEntered, i, driver, allAnswersClicked, Objective, SubObjective, correctanswerAmount
@@ -236,7 +231,6 @@ def QuestionCreation():
     CloseQIDMenu.click()
     SheetChecker()
 
-
 def LoginAndOpenQuestionInput():
     global Username, Password, driver, categoryName, productName, ErrorMessage, ErrorWindow
     if not driver:
@@ -303,11 +297,11 @@ def LoginAndOpenQuestionInput():
         firstCreateButton.click()
         QuestionCreation()
 
-
 def DisplayStartWindow():
-    global driver, check, PasswordInput, Password_var, UsernameInput, Username_var, Category_var, Product_var, ExcelName_var, root, style
+    global driver, check, PasswordInput, Password_var, UsernameInput, Username_var, Category_var, Product_var, ExcelName_var, root, style,ThemeDD, clicked, mycanvas
     root = Tk()
-    style = Style(theme='cyborg')
+    style = Style(theme='vaporwave')
+
     Background = style.colors.bg
     ToggleBGColor = style.colors.secondary
     print(ToggleBGColor)
@@ -317,26 +311,37 @@ def DisplayStartWindow():
     Category_var = StringVar()
     Product_var = StringVar()
     ExcelName_var = StringVar()
-    root.title("Question Creation")
+    root.title("Authoring Automation Tool")
     driver = None
     root.geometry('1000x800')
     root.configure(background=Background)
-    LabelFontStyle = tkFont.Font(family="Lucida Grande", size=12)
+    LabelFontStyle = tkFont.Font(family="Helvetica", size=12, weight="bold")
+    HeaderFontStyle=tkFont.Font(family="Veranda bold", size=20,weight="bold")
 
+    Themes =["minty","flatly","cosmo","litera","lumen","pulse","sandstone","united","yeti","superhero","solar","cyborg","darkly","vaporwave","carnage"]
 
     # Creating menuFrame
     menuFrame = ttk.Frame(root, style='primary.TFrame')
     menuFrame.pack(pady=50)
 
+    backgroundImage = PhotoImage(file="MicrosoftTeams-image.png")
+    backgroundLabel = Label(menuFrame, image=backgroundImage)
+    backgroundLabel.place(x=0, y=0, relwidth=1, relheight=1)
+    
     entryFrame = ttk.Frame(menuFrame, style='secondary.TFrame')
-    entryFrame.pack(padx=50, pady=50)
+    entryFrame.pack(padx=60, pady=60)
 
     productFrame = ttk.Frame(menuFrame, style='secondary.TFrame')
     productFrame.pack(padx=10, pady=10)
 
-    ProjectLabel = ttk.Label(menuFrame, text='Question Automation Tool', font=("Verdana bold", 20),
+    ProjectLabel = ttk.Label(menuFrame, text='Question Automation Tool', font=HeaderFontStyle,
                              style='primary.Inverse.TLabel')
-    ProjectLabel.place(x=80, y=0)
+    ProjectLabel.place(x=120, y=10)
+
+    clicked = StringVar()
+    clicked.set("Themes")
+
+    drop = OptionMenu(root, clicked, *Themes, command=(changeTheme)).place(x=850, y =10)
 
     UsernameLabel = ttk.Label(entryFrame, text='Username :',
                               style='secondary.Inverse.TLabel', font=LabelFontStyle)
@@ -360,39 +365,53 @@ def DisplayStartWindow():
                               style='secondary.Inverse.TLabel', font=LabelFontStyle).grid(row=1, column=1, padx=10, pady=10)
     CategoryInput = ttk.Entry(productFrame, textvariable=Category_var,
                               style='primary.TEntry', width=30).grid(row=1, column=2, padx=10, pady=10)
-
     ProductLabel = ttk.Label(productFrame, text='Enter Product:',
                              style='secondary.Inverse.TLabel', font=LabelFontStyle).grid(row=2, column=1, padx=10, pady=10)
     ProductInput = ttk.Entry(productFrame, textvariable=Product_var,
                              style='primary.TEntry', width=30).grid(row=2, column=2, padx=10, pady=10)
 
-    Start = Button(root, text="Start", command=(
-        LoginAndOpenQuestionInput), fg='#FFF', bg='#63cbff', width=25).place(x=400, y=400)
+    BrowseButton = ttk.Button(productFrame, text="Browse Files", command=(browseFiles), style='primary.TButton').grid(row=3, column=2, padx=5, pady=5)
+
+    Start = ttk.Button(root, text="Start", command=(
+        LoginAndOpenQuestionInput), style="info.TButton", width=25).place(x=400, y=400)
 
     # MessageDisplayed = Label(root, text="Status: " + ErrorMessage,
     #                        bg='#1e2124',  fg='#FFF').place(x=10, y=250)
-    # ThemeToggle= Button(root, text="Change Theme",fg='#FFF', bg="#8149b3", command=(LightTheme())).place(x=200, y=600)
     root.mainloop()
 
+def changeTheme():
+    global style, clicked
+    style = Style(theme=clicked)
 
+def search_for_file_path ():
+    global tempdir
+    currdir = os.getcwd()
+    tempdir = filedialog.askopenfilename(parent=root, initialdir=currdir, title='Please select a File')
+    if len(tempdir) > 0:
+        print ("You chose: %s" % tempdir)
+    return tempdir
+
+def browseFiles():
+    search_for_file_path()
+    global ExcelFileName
+    ExcelFileName = tempdir
+    print ("\nfile_path_variable = ", ExcelFileName)
+    LoadingExcelInfo()
+      
 def show():
     PasswordInput.configure(show='')
     check.configure(command=hide, text='Hide Password')
-
 
 def hide():
     PasswordInput.configure(show='*')
     check.configure(command=show, text='Show Password')
 
-
 def ErrorWindowDefault():
     messagebox.showerror(title="Error", message=ErrorMessage)
-
 
 def ResetWindow():
     root.destroy()
     DisplayStartWindow()
-
 
 DisplayStartWindow()
 
@@ -402,61 +421,11 @@ DisplayStartWindow()
                                         ))"""
 
 
+
+
+
+
+
 # ~~~~~~~~~~~Made By Diana Cervantes ~~~~~~~~~~~~~ Project: Question Creation Automation
 
 
-# Just in Case Graveyard Code
-
-# elif questionType.value == 'Drag and Match':
-
-#     while answerIndex < amountofAnswers:
-#         if answerIndex == 0:
-#             DragOption = WebDriverWait(driver, 15).until(
-#                 EC.frame_to_be_available_and_switch_to_it(
-#                     (By.XPATH, '//*[@id="cke_3_contents"]/iframe'))
-#             )
-#             WebDriverWait(driver, 15).until(EC.element_to_be_clickable((
-#                 By.XPATH, '/html/body/p'))).send_keys(DragOptionToBeEntered)
-#             driver.switch_to.default_content()
-
-#             DropTarget = WebDriverWait(driver, 15).until(
-#                 EC.frame_to_be_available_and_switch_to_it(
-#                     (By.XPATH, '//*[@id="cke_4_contents"]/iframe'))
-#             )
-#             WebDriverWait(driver, 15).until(EC.element_to_be_clickable((
-#                 By.XPATH, '/html/body/p'))).send_keys(DropTargetToBeEntered)
-#             driver.switch_to.default_content()
-#         elif answerIndex == 2:
-#             DragOption = WebDriverWait(driver, 15).until(
-#                 EC.frame_to_be_available_and_switch_to_it(
-#                     (By.XPATH, '//*[@id="cke_298_contents"]/iframe'))
-#             )
-#             WebDriverWait(driver, 15).until(EC.element_to_be_clickable((
-#                 By.XPATH, '/html/body/p'))).send_keys(DragOptionToBeEntered)
-#             driver.switch_to.default_content()
-
-#             DropTarget = WebDriverWait(driver, 15).until(
-#                 EC.frame_to_be_available_and_switch_to_it(
-#                     (By.XPATH, '//*[@id="cke_299_contents"]/iframe'))
-#             )
-#             WebDriverWait(driver, 15).until(EC.element_to_be_clickable((
-#                 By.XPATH, '/html/body/p'))).send_keys(DropTargetToBeEntered)
-#             driver.switch_to.default_content()
-#         elif answerIndex == 1:
-#             DragOption = WebDriverWait(driver, 15).until(
-#                 EC.frame_to_be_available_and_switch_to_it(
-#                     (By.XPATH, '//*[@id="cke_214_contents"]/iframe'))
-#             )
-#             WebDriverWait(driver, 15).until(EC.element_to_be_clickable((
-#                 By.XPATH, '/html/body/p'))).send_keys(DragOptionToBeEntered)
-#             driver.switch_to.default_content()
-
-#             DropTarget = WebDriverWait(driver, 15).until(
-#                 EC.frame_to_be_available_and_switch_to_it(
-#                     (By.XPATH, '//*[@id="cke_215_contents"]/iframe'))
-#             )
-#             WebDriverWait(driver, 15).until(EC.element_to_be_clickable((
-#                 By.XPATH, '/html/body/p'))).send_keys(DropTargetToBeEntered)
-#             driver.switch_to.default_content()
-##answerIndex += 1
-# ClickMoreAnswer()
