@@ -1,4 +1,3 @@
-
 # Notes
 
 To create new styles type: python -m ttkcreator
@@ -21,18 +20,19 @@ Simulation - Working just needs tweaking on the final create Question button wou
 Multiple Yes/No- fails could work with tweaking requires to answers
 Single True False - could work with tweaking requires answers to work
 
-# To-Do
-#22023d
-#460180
-#a8cbed
-Added File Insert for Excel Sheets 11/10/21
+--To-Do--
+
+-Added File Insert for Excel Sheets 11/10/21
+-Added Theme selection 11/10/21
+-Change Category and Product Entry boxes to comboboxes 11/11/21
+Save users Perfered Theme
 Need to add Sheet iterator
-Need to finish Theme selection
-Update question types
+Update question types for more finished question types from beginning to end.
 
-# Just in Case Graveyard Code
 
- elif questionType.value == 'Drag and Match':
+-- Just in Case Graveyard Code
+
+elif questionType.value == 'Drag and Match':
 
      while answerIndex < amountofAnswers:
          if answerIndex == 0:
@@ -82,6 +82,39 @@ Update question types
              WebDriverWait(driver, 15).until(EC.element_to_be_clickable((
                  By.XPATH, '/html/body/p'))).send_keys(DropTargetToBeEntered)
              driver.switch_to.default_content()
-answerIndex += 1
- ClickMoreAnswer()
 
+answerIndex += 1
+ClickMoreAnswer()
+
+--Theme Colors-
+
+Samhain:
+ -#EB6121
+ -#C8522B
+ -#A64435
+ -#83353E
+ -#612748
+ -#3E1852
+
+SamhainVariant:
+ -#020203
+ -#5A2969
+ -#BD624F
+ -#FFA95E
+ -#FFE59E
+
+CodeRed:
+ -#3F1515
+ -#9E2830
+ -#CE313D
+ -#FD3A4A
+ -#6F1E22
+ -#100C08
+
+EarthlyTones:
+ -#9D9379
+ -#888574
+ -#3B3739
+ -#312129
+ -#5C4332
+ -#705C44

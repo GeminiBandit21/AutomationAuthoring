@@ -15,9 +15,9 @@ from ttkbootstrap import Style, Colors
 import os
 
 
-#AutomationTest.xlsx
+# AutomationTest.xlsx
 def LoadingExcelInfo():
-    global sheetindex, questionType, QuestionName,InstructionsToBeEntered, HelpTextToBeEntered,DropTargetToBeEntered,CorrectAnswerCell,Objective,SubObjective,TotalSheets,correctanswerAmount,amountofAnswers,answerIndex,allAnswersClicked,correctAnswerIndex
+    global sheetindex, questionType, QuestionName, InstructionsToBeEntered, HelpTextToBeEntered, DropTargetToBeEntered, CorrectAnswerCell, Objective, SubObjective, TotalSheets, correctanswerAmount, amountofAnswers, answerIndex, allAnswersClicked, correctAnswerIndex
     #ExcelFileName = ''
     wb = load_workbook(ExcelFileName)
     sheetindex = 0
@@ -45,6 +45,7 @@ def LoadingExcelInfo():
     allAnswersClicked = 0
     correctAnswerIndex = 0
     #print("Amount of Total Answers"+str(amountofAnswers))
+
 
 def SheetChecker():
     global i, questionType, QuestionName, InstructionsToBeEntered, HelpTextToBeEntered, DropTargetToBeEntered, CorrectAnswerCell, Objective, SubObjective, correctanswerAmount, amountofAnswers
@@ -75,11 +76,13 @@ def SheetChecker():
     # print(str(DragOptionToBeEntered.value).split('\n'))
     #print(str(i) + " :This is the i value")
 
+
 def TimeoutErrorMessage():
     global QIDCell
     QIDCell.fill = PatternFill(fgColor='34B1EB', fill_type='solid')
     QIDCell.value = "Question Failed To Create"
     wb.save(ExcelFileName)
+
 
 def ClickMoreAnswer():
     global driver
@@ -88,6 +91,7 @@ def ClickMoreAnswer():
         CreateAnotherAnswer = driver.find_element_by_id(
             "AddAnswer0"+str(answerIndex))
         CreateAnotherAnswer.click()
+
 
 def FinallyCreateQuestionButton():
     global driver, questionType
@@ -101,6 +105,7 @@ def FinallyCreateQuestionButton():
             EC.element_to_be_clickable((By.ID, 'OnClickCreateQuestion'))
         ).click()
     time.sleep(2)
+
 
 def RetreiveQID():
     global driver, i, QIDCell, QIDName
@@ -117,6 +122,7 @@ def RetreiveQID():
         "Question successfully created. Question ID: ")
     wb.save(ExcelFileName)
     print(QIDName)
+
 
 def QuestionTypeClicker():
     global driver, questionType
@@ -138,6 +144,7 @@ def QuestionTypeClicker():
     )
     print("Question Type: " + questionType.value)
     questionTypeSelected.click()
+
 
 def QuestionCreation():
     global questionType, QuestionName, answerIndex, amountofAnswers, DragOptionToBeEntered, DropTargetToBeEntered, InstructionsToBeEntered, HelpTextToBeEntered, i, driver, allAnswersClicked, Objective, SubObjective, correctanswerAmount
@@ -231,6 +238,7 @@ def QuestionCreation():
     CloseQIDMenu.click()
     SheetChecker()
 
+
 def LoginAndOpenQuestionInput():
     global Username, Password, driver, categoryName, productName, ErrorMessage, ErrorWindow
     if not driver:
@@ -297,14 +305,72 @@ def LoginAndOpenQuestionInput():
         firstCreateButton.click()
         QuestionCreation()
 
-def DisplayStartWindow():
-    global driver, check, PasswordInput, Password_var, UsernameInput, Username_var, Category_var, Product_var, ExcelName_var, root, style,ThemeDD, clicked, mycanvas
-    root = Tk()
-    style = Style(theme='vaporwave')
 
+def UpdateProductList(event):
+    global ProductInput
+    selected = event.widget.get()
+    ProductList_values = {
+        "Adobe 2021": ["After Effects 2019/2020/2021", "Animate 2019/2020/2021", "Dreamweaver 2019/2020/2021", "Illustrator 2019/2020/2021", "InDesign 2019/2020/2021", "Photoshop 2019/2020/2021", "Premiere Pro 2019/2020/2021"],
+        "Adobe CC": ["After Effects CC", "Animate CC", "Dreamweaver CC", "Flash CC", "Illustrator", "InDesign", "Photoshop", "Premiere"],
+        "Adobe CC 2018 (LITA)": ["After Effects CC 2018/2019/2020", "Animate CC 2018/2019/2020", "Dreamweaver CC 2018/2019/2020", "Illustrator CC 2018/2019/2020", "InDesign CC 2018/2019/2020", 'Photoshop CC 2018/2019/2020', "Premiere Pro CC 2018/2019/2020"],
+        'Adobe CS5': ["Dreamweaver CS5", "Flash CS5", "Photoshop CS5"],
+        "Adobe CS6": ["Dreamweaver CS6", "Flash CS6", "Illustrator CS6", "InDesign CS6", "Photoshop CS6", "Premiere CS6"],
+        "AHIT": ["AHIT Live Class", "Home Inspection Concepts", "National Home Inspector Examination"],
+        "AppInventor": ["AppInventor"],
+        "Apple": ["App Development with Swift - Level 1", "App Development with Swift Associate", "App Development with Swift Certified User"],
+        "Appraisal": ["NAJA"],
+        "ASE Entry-Level Certification Program": ["Automatic Transmission and Transaxle", "Brakes", "Electrical/Electronic Systems", "Engine Performance", "Engine Repair", "Heating, Ventilation and Air Conditioning", "Manual Drivetrains and Axels", "Suspension and Steering"],
+        "ASE Professional Certification": ["A1: Engine Repair", "A2: Automatic Transmission/Transaxle", "A3: Manual Drivetrains and Axels", "A4: Suspension and Steering", "A5: Brakes", "A6: Electrical and Electronic Systems", "A7: Heating and Air Conditioning", "A8: Engine Performance", "A9: Light Vehicle Diesel Engines", "C1: Automobile Service Consultant", "F1: Compressed Natural Gas Vehicle", "G1: Auto Maintenance and Light Repair", "L1: Advanced Engine Performance Specialist", "L3: Light Duty Hybrid/Electric Vehicle Specialist", "P2: Automobile Parts Specialist"],
+        "Autodesk Certified Professional": ["3DS Max", "AutoCAD", "AutoCAD Civil 3D", "AutoCAD for Design and Drafting", "Civil 3D for Infrastructure Design", "Inventor", "Inventor for Mechanical Design", "Maya", "Revit Architecture", "Revit for Architectural Design", "Revit for Structural Design", "Revit MEP", "Revit Structure"],
+        "Autodesk Certified User": ["3DS Max", "AutoCAD", "Fusion 360", "Inventor", "Maya", "Revit Architecture"],
+        "AWS Certified": ["Cloud Practitioner"],
+        "Black Knight": ["Paragon"],
+        "Coding in Minecraft": ["Coding in Minecraft", "Introduction to Coding using MakeCode"],
+        "Communication Skills for Business (CSB)": ["Communication Skills for Business (CSB)", "English for IT"],
+        "CompTIA": ["A+ (220-1001)", "A+ (220-1002)", "A+ 901", "A+ 902", "Advanced Security Practitioner (CAS-002)", "Advanced Security Practitioner (CAS-003)", "Cloud + (CV0-002)", "IT Fundamentals (FC0-U61)", "Linux+ LX0-103", "Linux+ LX0-104", "Network+", "Network+ (N10-007)", "Network+ (N10-008)", "PenTest + (PT0-001)", "Security+", "Security+ SY0-501", "Security+ SY0-601", "Server + (SK0-004)"],
+        "Construction": ["Licensing"],
+        "Digital Skills Programme": ["Digital Skills Programme"],
+        "EC-Council": ["Cyber Forensics Associate", "Ethical Hacking Associate"],
+        "Entrepreneurship & Small Business": ["Entrepreneurship & Small Business", "Entrepreneurship & Small Business v.2 - U.S."],
+        "Exam Prep": ["Artisan Content Import", "California Real Estate Assessment", "Exam Prep Plus - National Real Estate Assessment", "Georgia Real Estate Assessment", "National AMP-PSI Real Estate Assessment", "National Pearson Vue Real Estate Assessment", "New York Real Estate Assessment", "Oregon Real Estate Assessment", "Pearson Vue + Utah Practice Exam", "Texas Real Estate Assessment"],
+        "EXIN": ["Ethical Hacking"],
+        "GISP": ["GISCI"],
+        "Global Digital Literacy": ["Bulgarian Digital Skills", "Digital Literacy Baseline Assessment"],
+        "GMetrix Competency": ["GMetrix Competency"],
+        "IC PHP Developer Fundamentals": ["IC PHP Developer Fundamentals"],
+        "IC3 GS4": ["Computing Fundamentals", "IC3 GS4 All Products", "IC3 GS4 Computing Fundamentals Spark", "IC3 GS4 Key Applications Spark", "IC3 GS4 Living Online Spark", "IC3 GS4 Spark", "Key Applications", "Living Online"],
+        "IC3 GS5": ["Computing Fundamentals", "Computing Fundamentals (Office 2016)", "IC3 Fast Track", "IC3 GS5 Spark", "Key Applications", "Living Online"],
+        "IC3 GS6": ["Digital Literacy Level 1", "Digital Literacy Level 2", "Digital Literacy Level 3"],
+        "ICC Certifications": ["Property Maintenance and Housing Inspector"],
+        "In Development": ["AIJR - Situational Judgement", "Am I Job Ready?", "App Inventor", "GMetrix Internal Content", "Java 9", "Learning HTML & CSS", "LearnKey Soft Skills", "NYC Taxi", "Premium Accident and Health Producer", "Premium Life, Accident, and Health Insurance Producer", "QA", "TPG Demo"],
+        "Information Technology Specialist": ["Artificial Intelligence", "Cloud Computing", "Computational Thinking", "Cybersecurity", "Databases", "Device Configuration and Management", "HTML 5 Application Development", "HTML and CSS", "Java", "JavaScript", "Network Security", "Networking", "Python", "Software Development"],
+        "Introduction to Programming": ["Introduction to Programming"],
+        "Intuit": ["Certified Bookkeeping Professional", "Design for Delight Innovator", "QuickBooks Desktop", "QuickBooks Online", "QuickBooks Online - U.S.", "QuickBooks Online Global"],
+        "Microsoft Certified Educator (MCE)": ["Microsoft Certified Educator (2018)", "Microsoft Certified Educator (Old Version)"],
+        "Microsoft Certified Fundamentals": ["AI-900 AI Fundamentals", "AZ-204: Developing Solutions for Microsoft Azure", "AZ-900 Azure Fundamentals", "Azure Administrator (AZ-104)", "Azure Security Engineer (AZ-500)", "DA-100: Analyzing Data with Microsoft Power BI", "DP-900 Azure Data Fundamentals", "MB-900 Dynamics 365 Fundamentals", "MB-901 Dynamics 365 Fundamentals", "MB-910: Microsoft Dynamics 365 Fundamentals (CRM)", "MB-920: Microsoft Dynamics 365 Fundamentals (ERP)", "MS-500: Microsoft 365 Security Administration", "MS-600: Building Applications and Solutions with Microsoft 365 Core Services", "MS-700: Managing Microsoft Teams", "MS-900 Microsoft 365 Fundamentals", "PL-100: Microsoft Power Platform App Maker", "PL-900 Power Platform Fundamentals", "SC-900: Microsoft Security, Compliance, and Identity Fundamentals"],
+        'Microsoft Office 2010': ["Access", "Excel", "Excel Expert", "Office 365", "OneNote", "Outlook", "PowerPoint", "SharePoint", "Word", "Word Expert"],
+        'Microsoft Office 2013': ["Access", "Excel", "Excel Expert", "OneNote", "Outlook", "PowerPoint", "SharePoint", "Word", "Word Expert"],
+        'Microsoft Office 2016': ["Access", "Excel", "Excel Expert", "OneNote", "Outlook", "PowerPoint", "SharePoint", "Word", "Word Expert"],
+        'Microsoft Office 2019': ["Access", "Excel", "Excel Expert", "Outlook", "PowerPoint", "Word", "Word Expert"],
+        "Microsoft Office Corporate Competency": ["Excel", "Teams"],
+        "MTA": ["98-349: Windows Operating System Fundamentals", "98-361: Software Development Fundamentals", "98-362: Windows Development Fundamentals", "98-363: Web Development Fundamentals", "98-364: Database Administration Fundamentals", "98-365: Windows Server Administration Fundamentals"],
+        "Pennie": ["Pennie"],
+        "Project Management Institute": ["Project Management Ready"],
+        "Python Institute": ["PCAP-31-03: Certified Associate in Python Programmer"],
+        "The Linux Foundation": ["Linux Foundation Certified IT Associate"],
+        "Toon Boom Certified Associate": ["Harmony Advanced", "Harmony Essentials", "Harmony Premium", "Storyboard Pro"],
+        "TPQI": ["Level 1", "Level 2"],
+        "Unity": ["Unity", "Unity Certified Associate: Artist", "Unity Certified Associate: Programmer", "Unity Certified Expert: Programmer", "Unity Certified Professional: Artist", "Unity Certified Professional: Programmer", "Unity Certified User: Digital Artist", "Unity Certified User: Programmer", "Unity VR Developer"]
+    }
+    ProductInput['values'] = ProductList_values[selected]
+
+
+def DisplayStartWindow():
+    global driver, check, PasswordInput, Password_var, UsernameInput, Username_var, Category_var, Product_var, ExcelName_var, root, style, ThemeDD, clicked, Background, drop, ProductInput, CategoryInput
+    global ProductList
+    root = Tk()
+    style = Style(theme='forestranger')
     Background = style.colors.bg
-    ToggleBGColor = style.colors.secondary
-    print(ToggleBGColor)
     ErrorMessage = ""
     Username_var = StringVar()
     Password_var = StringVar()
@@ -316,9 +382,15 @@ def DisplayStartWindow():
     root.geometry('1000x800')
     root.configure(background=Background)
     LabelFontStyle = tkFont.Font(family="Helvetica", size=12, weight="bold")
-    HeaderFontStyle=tkFont.Font(family="Veranda bold", size=20,weight="bold")
+    HeaderFontStyle = tkFont.Font(
+        family="Veranda bold", size=20, weight="bold")
 
-    Themes =["minty","flatly","cosmo","litera","lumen","pulse","sandstone","united","yeti","superhero","solar","cyborg","darkly","vaporwave","carnage"]
+    Themes = ["flatly", "cosmo", "litera", "lumen", "pulse", "sandstone", "united", "yeti",
+              "superhero", "solar", "cyborg", "darkly", "vaporwave", "carnage", "forestranger", "samhain"]
+    CategoriesList = ["Adobe 2021", "Adobe CC", "Adobe CC 2018 (LITA)", "Adobe CS5", "Adobe CS6", "AHIT", "AppInventor", "Apple", "Appraisal",
+                      "ASE Entry-Level Certification Program", "ASE Professional Certification", "Autodesk Certified Professional", "Autodesk Certified User", "AWS Certified", "Black Knight", "Coding in Minecraft", "Communication Skills for Business (CSB)", "CompTIA", "Construction", "Digital Skills Programme", "EC-Council",
+                      "Entrepreneurship & Small Business", "Exam Prep", "EXIN", "GISP", "Global Digital Literacy", "GMetrix Competency", "IC PHP Developer Fundamentals", "IC3 GS4", "IC3 GS5", "IC3 GS6", "ICC Certifications", "In Development", "Information Technology Specialist", "Introduction to Programming", "Intuit", "Microsoft Certified Educator (MCE)",
+                      "Microsoft Certified Fundamentals", "Microsoft Office 2010", "Microsoft Office 2013", "Microsoft Office 2016", "Microsoft Office 2019", "Microsoft Office Corporate Competency", "MTA", "Pennie", "Project Management Institute", "Python Institute", "The Linux Foundation", "Toon Boom Certified Associate", "TPQI", "Unity"]
 
     # Creating menuFrame
     menuFrame = ttk.Frame(root, style='primary.TFrame')
@@ -326,8 +398,8 @@ def DisplayStartWindow():
 
     backgroundImage = PhotoImage(file="MicrosoftTeams-image.png")
     backgroundLabel = Label(menuFrame, image=backgroundImage)
-    backgroundLabel.place(x=0, y=0, relwidth=1, relheight=1)
-    
+    #backgroundLabel.place(x=0, y=0, relwidth=1, relheight=1)
+
     entryFrame = ttk.Frame(menuFrame, style='secondary.TFrame')
     entryFrame.pack(padx=60, pady=60)
 
@@ -335,13 +407,14 @@ def DisplayStartWindow():
     productFrame.pack(padx=10, pady=10)
 
     ProjectLabel = ttk.Label(menuFrame, text='Question Automation Tool', font=HeaderFontStyle,
-                             style='primary.Inverse.TLabel')
+                             style='primary.Inverse.TLabel', borderwidth=0)
     ProjectLabel.place(x=120, y=10)
 
     clicked = StringVar()
     clicked.set("Themes")
 
-    drop = OptionMenu(root, clicked, *Themes, command=(changeTheme)).place(x=850, y =10)
+    drop = OptionMenu(root, clicked, *Themes,
+                      command=(changeTheme)).place(x=850, y=10)
 
     UsernameLabel = ttk.Label(entryFrame, text='Username :',
                               style='secondary.Inverse.TLabel', font=LabelFontStyle)
@@ -363,55 +436,72 @@ def DisplayStartWindow():
 
     CategoryLabel = ttk.Label(productFrame, text='Enter Category:',
                               style='secondary.Inverse.TLabel', font=LabelFontStyle).grid(row=1, column=1, padx=10, pady=10)
-    CategoryInput = ttk.Entry(productFrame, textvariable=Category_var,
-                              style='primary.TEntry', width=30).grid(row=1, column=2, padx=10, pady=10)
+    CategoryInput = ttk.Combobox(productFrame, textvariable=Category_var,
+                                 style='primary.TCombobox', width=30)
+    CategoryInput['values'] = CategoriesList
+    CategoryInput.grid(row=1, column=2, padx=10, pady=10)
+    CategoryInput.bind('<<ComboboxSelected>>', UpdateProductList)
+
     ProductLabel = ttk.Label(productFrame, text='Enter Product:',
                              style='secondary.Inverse.TLabel', font=LabelFontStyle).grid(row=2, column=1, padx=10, pady=10)
-    ProductInput = ttk.Entry(productFrame, textvariable=Product_var,
-                             style='primary.TEntry', width=30).grid(row=2, column=2, padx=10, pady=10)
+    ProductInput = ttk.Combobox(
+        productFrame, textvariable=Product_var, style='primary.TCombobox', width=30)
+    ProductInput.grid(row=2, column=2, padx=10, pady=10)
 
-    BrowseButton = ttk.Button(productFrame, text="Browse Files", command=(browseFiles), style='primary.TButton').grid(row=3, column=2, padx=5, pady=5)
+    BrowseButton = ttk.Button(productFrame, text="Browse Files", command=(
+        browseFiles), style='primary.TButton').grid(row=3, column=2, padx=5, pady=5)
 
     Start = ttk.Button(root, text="Start", command=(
         LoginAndOpenQuestionInput), style="info.TButton", width=25).place(x=400, y=400)
 
-    # MessageDisplayed = Label(root, text="Status: " + ErrorMessage,
-    #                        bg='#1e2124',  fg='#FFF').place(x=10, y=250)
     root.mainloop()
 
-def changeTheme():
-    global style, clicked
-    style = Style(theme=clicked)
 
-def search_for_file_path ():
+def changeTheme(self):
+    global style, clicked, root
+    themeSet = clicked.get()
+    style.theme_use(themeSet)
+    Background = style.colors.bg
+    root.configure(background=Background)
+    root = style.master
+
+
+def search_for_file_path():
     global tempdir
     currdir = os.getcwd()
-    tempdir = filedialog.askopenfilename(parent=root, initialdir=currdir, title='Please select a File')
+    tempdir = filedialog.askopenfilename(
+        parent=root, initialdir=currdir, title='Please select a File')
     if len(tempdir) > 0:
-        print ("You chose: %s" % tempdir)
+        print("You chose: %s" % tempdir)
     return tempdir
+
 
 def browseFiles():
     search_for_file_path()
     global ExcelFileName
     ExcelFileName = tempdir
-    print ("\nfile_path_variable = ", ExcelFileName)
+    print("\nfile_path_variable = ", ExcelFileName)
     LoadingExcelInfo()
-      
+
+
 def show():
     PasswordInput.configure(show='')
     check.configure(command=hide, text='Hide Password')
+
 
 def hide():
     PasswordInput.configure(show='*')
     check.configure(command=show, text='Show Password')
 
+
 def ErrorWindowDefault():
     messagebox.showerror(title="Error", message=ErrorMessage)
+
 
 def ResetWindow():
     root.destroy()
     DisplayStartWindow()
+
 
 DisplayStartWindow()
 
@@ -421,11 +511,4 @@ DisplayStartWindow()
                                         ))"""
 
 
-
-
-
-
-
 # ~~~~~~~~~~~Made By Diana Cervantes ~~~~~~~~~~~~~ Project: Question Creation Automation
-
-
