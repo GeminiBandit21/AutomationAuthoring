@@ -15,9 +15,9 @@ from ttkbootstrap import Style, Colors
 import os
 
 
-# AutomationTest.xlsx
 def LoadingExcelInfo():
-    global sheetindex, questionType, QuestionName, InstructionsToBeEntered, HelpTextToBeEntered, DropTargetToBeEntered, CorrectAnswerCell, Objective, SubObjective, TotalSheets, correctanswerAmount, amountofAnswers, answerIndex, allAnswersClicked, correctAnswerIndex
+    global sheetindex, questionType, QuestionName, InstructionsToBeEntered, HelpTextToBeEntered, DropTargetToBeEntered, CorrectAnswerCell, Objective, SubObjective, TotalSheets
+    global correctanswerAmount, amountofAnswers, answerIndex, allAnswersClicked, correctAnswerIndex, DragOptionToBeEntered, ws, i, wb, sheets, CorrectAnswerCellList, ObjectivesCell
     #ExcelFileName = ''
     wb = load_workbook(ExcelFileName)
     sheetindex = 0
@@ -78,7 +78,8 @@ def SheetChecker():
 
 
 def TimeoutErrorMessage():
-    global QIDCell
+    global QIDCell,i
+    QIDCell = ws['N'+str(i)]
     QIDCell.fill = PatternFill(fgColor='34B1EB', fill_type='solid')
     QIDCell.value = "Question Failed To Create"
     wb.save(ExcelFileName)
@@ -113,8 +114,6 @@ def RetreiveQID():
     QIDCell = ws['N'+str(i)]
     if questionType.value == "Multiple Choice":
         QIDCell.fill = PatternFill(fgColor='29FF49', fill_type='solid')
-    # elif ws['C'+str(i)].value.lower() == "mcwi":
-     #   QIDCell.fill = PatternFill(fgColor='34B1EB', fill_type='solid')
     else:
         QIDCell.fill = PatternFill(fgColor='FF4229', fill_type='solid')
 
@@ -148,7 +147,7 @@ def QuestionTypeClicker():
 
 def QuestionCreation():
     global questionType, QuestionName, answerIndex, amountofAnswers, DragOptionToBeEntered, DropTargetToBeEntered, InstructionsToBeEntered, HelpTextToBeEntered, i, driver, allAnswersClicked, Objective, SubObjective, correctanswerAmount
-    global correctAnswerIndex, CorrectAnswerCell, QIDCell, ErrorMessage
+    global correctAnswerIndex, CorrectAnswerCell, QIDCell, ErrorMessage, i
     # Inputting Question Name
     time.sleep(1)
     questionNameEntry = WebDriverWait(driver, 15).until(
@@ -156,25 +155,27 @@ def QuestionCreation():
     #questionNameEntry = driver.find_element_by_id("QuestionName")
     questionNameEntry.send_keys(QuestionName.value)
     # Opens Objective Menu
-    try:
-        objectiveDD = WebDriverWait(driver, 20).until(
+    objectiveDD = WebDriverWait(driver, 20).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="ObjectiveId"]'
                                             ))
         )
-        objectiveDD.click()
+    objectiveDD.click()
+
+
+    time.sleep(1)
+    try:
+        selectionOBJ = Select(driver.find_element_by_xpath(
+            "//select[@name='ObjectiveId']"))
+        selectionOBJ.select_by_visible_text(Objective.strip(" "))
     except:
         print("Object failed to Match any listed under this product")
         ErrorMessage = "Object failed to Match any listed under this product"
         TimeoutErrorMessage()
         ErrorWindowDefault()
         SheetChecker()
+        driver.quit()
         ResetWindow()
         LoginAndOpenQuestionInput()
-
-    time.sleep(1)
-    selectionOBJ = Select(driver.find_element_by_xpath(
-        "//select[@name='ObjectiveId']"))
-    selectionOBJ.select_by_visible_text(Objective.strip(" "))
     # Opens subObjective Drop Down
     subObjectiveDD = WebDriverWait(driver, 20).until(
         EC.presence_of_element_located(
@@ -191,6 +192,8 @@ def QuestionCreation():
         ErrorWindowDefault()
         TimeoutErrorMessage()
         SheetChecker()
+        driver.quit()
+        ResetWindow()
         print("SubObjective does not match any listed under this product")
 
     time.sleep(1)
@@ -275,24 +278,37 @@ def LoginAndOpenQuestionInput():
         openCategoryDD = driver.find_element_by_css_selector(
             'span[class="k-input"]')
         openCategoryDD.click()
-
-        # Clicking Category Selected
-        categorySelected = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, '//*[@id="Category-list"]//li[text() = "'+categoryName+'"]'
-                                        ))
-        )
-        categorySelected.click()
+        try:
+            # Clicking Category Selected
+            categorySelected = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, '//*[@id="Category-list"]//li[text() = "'+categoryName+'"]'
+                                            ))
+            )
+            categorySelected.click()
+        except:
+            ErrorMessage = "Category Entry Failed"
+            ErrorWindowDefault()
+            driver.quit()
+            ResetWindow()
+            print("Category Entry Failed")
         # Opening Product Drop Down List
         openProductDD = WebDriverWait(driver, 15).until(
             EC.presence_of_element_located((By.XPATH, ('/html/body/div[2]/form/div[1]/div/div/div[2]/div[2]/span[1]/span/span[1]'))))
         openProductDD.click()
         time.sleep(2)
-        # Clicking Product Name
-        productSelected = WebDriverWait(driver, 20).until(
-            EC.element_to_be_clickable((By.XPATH, '//*[@id="Product-list"]//li[text() = "'+productName+'"]'
-                                        ))
-        )
-        productSelected.click()
+        try:
+            # Clicking Product Name
+            productSelected = WebDriverWait(driver, 20).until(
+                EC.element_to_be_clickable((By.XPATH, '//*[@id="Product-list"]//li[text() = "'+productName+'"]'
+                                            ))
+            )
+            productSelected.click()
+        except:
+            ErrorMessage = "Product Entered Failed"
+            ErrorWindowDefault()
+            driver.quit()
+            ResetWindow()
+            print("Product Entered Failed")
 
         time.sleep(2)
         # Opening Question Drop Down List
@@ -449,7 +465,7 @@ def DisplayStartWindow():
     ProductInput.grid(row=2, column=2, padx=10, pady=10)
 
     BrowseButton = ttk.Button(productFrame, text="Browse Files", command=(
-        browseFiles), style='primary.TButton').grid(row=3, column=2, padx=5, pady=5)
+        browseFiles), style='danger.TButton').grid(row=3, column=2, padx=5, pady=5)
 
     Start = ttk.Button(root, text="Start", command=(
         LoginAndOpenQuestionInput), style="info.TButton", width=25).place(x=400, y=400)

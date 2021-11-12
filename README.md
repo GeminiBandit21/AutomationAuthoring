@@ -27,6 +27,7 @@ Single True False - could work with tweaking requires answers to work
 -Change Category and Product Entry boxes to comboboxes 11/11/21
 Save users Perfered Theme
 Need to add Sheet iterator
+Error Handling
 Update question types for more finished question types from beginning to end.
 
 
