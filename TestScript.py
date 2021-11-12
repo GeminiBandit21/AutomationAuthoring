@@ -78,10 +78,10 @@ def SheetChecker():
 
 
 def TimeoutErrorMessage():
-    global QIDCell,i
+    global QIDCell, i
     QIDCell = ws['N'+str(i)]
     QIDCell.fill = PatternFill(fgColor='34B1EB', fill_type='solid')
-    QIDCell.value = "Question Failed To Create"
+    QIDCell.value = "Question Failed To Create:" + ErrorMessage
     wb.save(ExcelFileName)
 
 
@@ -156,11 +156,10 @@ def QuestionCreation():
     questionNameEntry.send_keys(QuestionName.value)
     # Opens Objective Menu
     objectiveDD = WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="ObjectiveId"]'
-                                            ))
-        )
+        EC.presence_of_element_located((By.XPATH, '//*[@id="ObjectiveId"]'
+                                        ))
+    )
     objectiveDD.click()
-
 
     time.sleep(1)
     try:
@@ -188,7 +187,7 @@ def QuestionCreation():
     try:
         selectionSubOBJ.select_by_visible_text(SubObjective.strip(" "))
     except TimeoutException or ElementClickInterceptedException or NoSuchElementException:
-        ErrorMessage = "SubObjective does not match any listed under this product, Click OK to cycle to next Question"
+        ErrorMessage = "SubObjective does not match any listed under this product"
         ErrorWindowDefault()
         TimeoutErrorMessage()
         SheetChecker()
@@ -213,24 +212,33 @@ def QuestionCreation():
     if questionType.value == 'Multiple Choice':
         DragOptionToBeEntered = str(DragOptionToBeEntered.value).split('\n')
         CorrectAnswerCell = str(CorrectAnswerCell.value).split('\n')
-        while amountofAnswers > answerIndex:
-            MultipleChoice1 = WebDriverWait(driver, 20).until(
-                EC.presence_of_element_located((
-                    By.XPATH, "//input[@name='InstructionComponent[0].AnswersBlock.Answers["+str(answerIndex)+"].AnswerText']"))).send_keys(DragOptionToBeEntered[answerIndex])
-            if correctanswerAmount != allAnswersClicked:
-                if str(CorrectAnswerCell[correctAnswerIndex]) == str(DragOptionToBeEntered[answerIndex]):
-                    CorrectAnswerClicked = WebDriverWait(driver, 20).until(
-                        EC.element_to_be_clickable(
-                            (By.XPATH, '//*[@id="InstructionComponent_0__AnswersBlock_Answers_'+str(answerIndex)+'__IsCorrect"]'))
-                    ).click()
-                    correctAnswerIndex += 1
-                    allAnswersClicked += 1
+        try:
+            while amountofAnswers > answerIndex:
+                MultipleChoice1 = WebDriverWait(driver, 20).until(
+                    EC.presence_of_element_located((
+                        By.XPATH, "//input[@name='InstructionComponent[0].AnswersBlock.Answers["+str(answerIndex)+"].AnswerText']"))).send_keys(DragOptionToBeEntered[answerIndex])
+                if correctanswerAmount != allAnswersClicked:
+                    if str(CorrectAnswerCell[correctAnswerIndex]) == str(DragOptionToBeEntered[answerIndex]):
+                        CorrectAnswerClicked = WebDriverWait(driver, 20).until(
+                            EC.element_to_be_clickable(
+                                (By.XPATH, '//*[@id="InstructionComponent_0__AnswersBlock_Answers_'+str(answerIndex)+'__IsCorrect"]'))
+                        ).click()
+                        correctAnswerIndex += 1
+                        allAnswersClicked += 1
+                        time.sleep(1)
+                if (int(amountofAnswers)-1) != answerIndex:
+                    ClickMoreAnswer()
                     time.sleep(1)
-            if (int(amountofAnswers)-1) != answerIndex:
-                ClickMoreAnswer()
-                time.sleep(1)
-                #print(str(answerIndex) + "current answer index")
-            answerIndex += 1
+                    #print(str(answerIndex) + "current answer index")
+                answerIndex += 1
+        except:
+            ErrorMessage = "Answers Formatted Incorrectly"
+            ErrorWindowDefault()
+            TimeoutErrorMessage()
+            SheetChecker()
+            driver.quit()
+            ResetWindow()
+            print("Answers Formatted Incorrectly")
 
     FinallyCreateQuestionButton()
     RetreiveQID()
@@ -511,7 +519,7 @@ def hide():
 
 
 def ErrorWindowDefault():
-    messagebox.showerror(title="Error", message=ErrorMessage)
+    messagebox.showerror(title="Error", message=ErrorMessage +", Click OK to cycle to next question or Rerun Sheet")
 
 
 def ResetWindow():
