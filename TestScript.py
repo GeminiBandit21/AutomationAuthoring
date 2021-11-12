@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC, wait
 from selenium.common.exceptions import TimeoutException, ElementClickInterceptedException, NoSuchElementException
 import time
 from openpyxl import Workbook, load_workbook
-from openpyxl.styles import PatternFill
+from openpyxl.styles import PatternFill, Alignment
 import tkinter as tk
 import tkinter.font as tkFont
 from tkinter import *
@@ -81,6 +81,7 @@ def TimeoutErrorMessage():
     global QIDCell, i
     QIDCell = ws['N'+str(i)]
     QIDCell.fill = PatternFill(fgColor='34B1EB', fill_type='solid')
+    QIDCell.alignment= Alignment(wrap_text=True, vertical="top")
     QIDCell.value = "Question Failed To Create:" + ErrorMessage
     wb.save(ExcelFileName)
 
