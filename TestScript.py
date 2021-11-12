@@ -13,6 +13,7 @@ from tkinter import *
 from tkinter import messagebox, LabelFrame, Frame, filedialog, ttk
 from ttkbootstrap import Style, Colors
 import os
+userPrefrences = open("user_prefrences.txt","r")
 
 
 def LoadingExcelInfo():
@@ -46,7 +47,6 @@ def LoadingExcelInfo():
     correctAnswerIndex = 0
     #print("Amount of Total Answers"+str(amountofAnswers))
 
-
 def SheetChecker():
     global i, questionType, QuestionName, InstructionsToBeEntered, HelpTextToBeEntered, DropTargetToBeEntered, CorrectAnswerCell, Objective, SubObjective, correctanswerAmount, amountofAnswers
     print(str(i)+" before")
@@ -75,7 +75,6 @@ def SheetChecker():
         print("Finished cycling!!")
     # print(str(DragOptionToBeEntered.value).split('\n'))
     #print(str(i) + " :This is the i value")
-
 
 def TimeoutErrorMessage():
     global QIDCell, i
@@ -394,7 +393,7 @@ def DisplayStartWindow():
     global driver, check, PasswordInput, Password_var, UsernameInput, Username_var, Category_var, Product_var, ExcelName_var, root, style, ThemeDD, clicked, Background, drop, ProductInput, CategoryInput
     global ProductList
     root = Tk()
-    style = Style(theme='forestranger')
+    style = Style(theme=userPrefrences.read())
     Background = style.colors.bg
     ErrorMessage = ""
     Username_var = StringVar()
@@ -478,13 +477,16 @@ def DisplayStartWindow():
 
     Start = ttk.Button(root, text="Start", command=(
         LoginAndOpenQuestionInput), style="info.TButton", width=25).place(x=400, y=400)
-
+    userPrefrences.close()
     root.mainloop()
 
 
 def changeTheme(self):
-    global style, clicked, root
+    global style, clicked, root,userPrefrences
     themeSet = clicked.get()
+    userPrefrences=open("user_prefrences.txt","w")
+    userPrefrences.write(themeSet)
+    userPrefrences.close()
     style.theme_use(themeSet)
     Background = style.colors.bg
     root.configure(background=Background)
