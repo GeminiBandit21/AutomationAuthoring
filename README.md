@@ -4,7 +4,7 @@ To create new styles type: python -m ttkcreator
 
 Working Question Types:
 Multiple Choice Works without issue- Marks Green
-IFrame Works missing template input - Marks Red will mark Yellow since Template issue
+IFrame Works missing template input - Marks Red since Template issue
 Application- Creates QID does not add Sample Doc or Templates!!
 Drag and Match or DND: Creates Question does not add answers!! Marks Red
 Categorize-Marks Red missing categories
@@ -25,7 +25,7 @@ Single True False - could work with tweaking requires answers to work
 -Added File Insert for Excel Sheets 11/10/21
 -Added Theme selection 11/10/21
 -Change Category and Product Entry boxes to comboboxes 11/11/21
--Save users Perfered Theme 11/12/21
+-Save users Preferred Theme 11/12/21
 Need to add Sheet iterator or Toggle Function
 -Error Handling 11/12/21
 Update question types for more finished question types from beginning to end.
