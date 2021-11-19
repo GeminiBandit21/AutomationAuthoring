@@ -1,0 +1,84 @@
+{
+	"themes": [
+		{
+			"name": "carnage",
+			"font": "Helvetica 10",
+			"type": "dark",
+			"colors": {
+				"primary": "#1c1b1b",
+				"secondary": "#444444",
+				"success": "#1c1b1b",
+				"info": "#433d40",
+				"warning": "#f39c12",
+				"danger": "#e74c3c",
+				"bg": "#222222",
+				"fg": "#f90006",
+				"selectbg": "#363636",
+				"selectfg": "#ff0909",
+				"border": "#222222",
+				"inputfg": "#ffffff",
+				"inputbg": "#000000"
+			}
+		},
+		{
+			"name": "vaporwave",
+			"font": "Helvetica 10",
+			"type": "dark",
+			"colors": {
+				"primary": "#22023d",
+				"secondary": "#6610f2",
+				"success": "#3cf281",
+				"info": "#32fbe2",
+				"warning": "#ffc107",
+				"danger": "#e44c55",
+				"bg": "#170229",
+				"fg": "#FDEBF8",
+				"selectbg": "#6610f2",
+				"selectfg": "#ffffff",
+				"border": "#222222",
+				"inputfg": "#170229",
+				"inputbg": "#9bb2c9"
+			}
+		},
+		{
+			"name": "forestranger",
+			"font": "Helvetica 10",
+			"type": "dark",
+			"colors": {
+				"primary": "#3A4928",
+				"secondary": "#4B6B3C",
+				"success": "#808000",
+				"info": "#008080",
+				"warning": "#f39c12",
+				"danger": "#e74c3c",
+				"bg": "#3B2E1E",
+				"fg": "#E6DEB9",
+				"selectbg": "#907A48",
+				"selectfg": "#E6DEB9",
+				"border": "#222222",
+				"inputfg": "#333333",
+				"inputbg": "#D4BF88"
+			}
+		},
+		{
+			"name": "samhain",
+			"font": "Helvetica 10",
+			"type": "dark",
+			"colors": {
+				"primary": "#83353E",
+				"secondary": "#A64435",
+				"success": "#C8522B",
+				"info": "#EB6121",
+				"warning": "#f39c12",
+				"danger": "#ff3c3c",
+				"bg": "#3E1852",
+				"fg": "#ffffff",
+				"selectbg": "#612748",
+				"selectfg": "#ffffff",
+				"border": "#222222",
+				"inputfg": "#333333",
+				"inputbg": "#FFE59E"
+			}
+		}
+	]
+}

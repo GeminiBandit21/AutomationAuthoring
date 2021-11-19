@@ -13,10 +13,11 @@ from tkinter import *
 from tkinter import messagebox, LabelFrame, Frame, filedialog, ttk
 from ttkbootstrap import Style, Colors
 import os
-userPrefrences = open("user_prefrences.txt","r")
+userPrefrences = open("./User/user_prefrences.txt", "r")
 
 
 def LoadingExcelInfo():
+    #Checking if Excel sheet is usable, and assigning the cell variables
     global sheetindex, questionType, QuestionName, InstructionsToBeEntered, HelpTextToBeEntered, DropTargetToBeEntered, CorrectAnswerCell, Objective, SubObjective, TotalSheets
     global correctanswerAmount, amountofAnswers, answerIndex, allAnswersClicked, correctAnswerIndex, DragOptionToBeEntered, ws, i, wb, sheets, CorrectAnswerCellList, ObjectivesCell
     #ExcelFileName = ''
@@ -47,7 +48,9 @@ def LoadingExcelInfo():
     correctAnswerIndex = 0
     #print("Amount of Total Answers"+str(amountofAnswers))
 
+
 def SheetChecker():
+    #Iterating to next question if previous question failed to be created also checks if there is anymore questions to be created.
     global i, questionType, QuestionName, InstructionsToBeEntered, HelpTextToBeEntered, DropTargetToBeEntered, CorrectAnswerCell, Objective, SubObjective, correctanswerAmount, amountofAnswers
     print(str(i)+" before")
     i += 1
@@ -76,16 +79,19 @@ def SheetChecker():
     # print(str(DragOptionToBeEntered.value).split('\n'))
     #print(str(i) + " :This is the i value")
 
+
 def TimeoutErrorMessage():
+    #If an error Occurs this will mark the sheet Blue and inputs the Error message instead of a QID since it failed to create a QID
     global QIDCell, i
     QIDCell = ws['N'+str(i)]
     QIDCell.fill = PatternFill(fgColor='34B1EB', fill_type='solid')
-    QIDCell.alignment= Alignment(wrap_text=True, vertical="top")
+    QIDCell.alignment = Alignment(wrap_text=True, vertical="top")
     QIDCell.value = "Question Failed To Create:" + ErrorMessage
     wb.save(ExcelFileName)
 
 
 def ClickMoreAnswer():
+    #Cycling to next Answer until all answers have been added
     global driver
     if amountofAnswers > answerIndex:
         # Create Another Answer
@@ -95,6 +101,7 @@ def ClickMoreAnswer():
 
 
 def FinallyCreateQuestionButton():
+    #Just hitting the last Create Button
     global driver, questionType
     if questionType.value == 'IFrame':
         FinalCreate = WebDriverWait(driver, 15).until(
@@ -109,6 +116,7 @@ def FinallyCreateQuestionButton():
 
 
 def RetreiveQID():
+    #Retrieves the QID given once the Question has been created, if the question needs more work marked red, if question is full finished marked Green
     global driver, i, QIDCell, QIDName
     QIDName = driver.find_element_by_class_name("modal-body").text
     QIDCell = ws['N'+str(i)]
@@ -124,6 +132,7 @@ def RetreiveQID():
 
 
 def QuestionTypeClicker():
+    #Clicking the Correct Question Type and if the Input given in the sheet is not supported corrects to acceptable format
     global driver, questionType
     openQuestionDD = WebDriverWait(driver, 15).until(
         EC.element_to_be_clickable((By.XPATH, ('//*[@id="questionTypeContainer"]/div[2]/span[1]/span/span[1]'))))
@@ -162,6 +171,7 @@ def QuestionCreation():
     objectiveDD.click()
 
     time.sleep(1)
+    #Selecting Objective, if Objective is not available Calls Error Window and Marks Sheet with Reason it Failed to be Created
     try:
         selectionOBJ = Select(driver.find_element_by_xpath(
             "//select[@name='ObjectiveId']"))
@@ -184,6 +194,7 @@ def QuestionCreation():
     time.sleep(1)
     selectionSubOBJ = Select(driver.find_element_by_xpath(
         "//select[@name='ddlSubObjective']"))
+    #Selecting SubOBJ, if it fails to open, calls Error Window and Marks Sheet with reason it failed to be created
     try:
         selectionSubOBJ.select_by_visible_text(SubObjective.strip(" "))
     except TimeoutException or ElementClickInterceptedException or NoSuchElementException:
@@ -208,11 +219,12 @@ def QuestionCreation():
     WebDriverWait(driver, 20).until(EC.element_to_be_clickable(
         (By.XPATH, "//body[@class='cke_editable cke_editable_themed cke_contents_ltr cke_show_borders']/p"))).send_keys(HelpTextToBeEntered.value)
     driver.switch_to.default_content()
-
+    #Specifies how the answers should be added to Site depending on Question Type and Clicks the Correct Answer
     if questionType.value == 'Multiple Choice':
         DragOptionToBeEntered = str(DragOptionToBeEntered.value).split('\n')
         CorrectAnswerCell = str(CorrectAnswerCell.value).split('\n')
         try:
+            #Checking if There are more answers than what is listed in the answer index
             while amountofAnswers > answerIndex:
                 MultipleChoice1 = WebDriverWait(driver, 20).until(
                     EC.presence_of_element_located((
@@ -231,6 +243,7 @@ def QuestionCreation():
                     time.sleep(1)
                     #print(str(answerIndex) + "current answer index")
                 answerIndex += 1
+        #Error Handling
         except:
             ErrorMessage = "Answers Formatted Incorrectly"
             ErrorWindowDefault()
@@ -258,7 +271,7 @@ def LoginAndOpenQuestionInput():
         Password = Password_var.get()
         categoryName = " " + Category_var.get()
         productName = Product_var.get()
-        PATH = "C:\Program Files (x86)\chromedriver.exe"
+        PATH = "./driver/chromedriver.exe"
         driver = webdriver.Chrome(PATH)
         driver.get("https://author.gmetrix.net")
         # This is opening the webpage^^^
@@ -331,6 +344,7 @@ def LoginAndOpenQuestionInput():
 
 
 def UpdateProductList(event):
+    #Updates Product List depending on the Category Selected
     global ProductInput
     selected = event.widget.get()
     ProductList_values = {
@@ -402,6 +416,7 @@ def DisplayStartWindow():
     Product_var = StringVar()
     ExcelName_var = StringVar()
     root.title("Authoring Automation Tool")
+    root.iconbitmap(default='OriginalV2GmetrixAutoToolIcon.ico')
     driver = None
     root.geometry('1000x800')
     root.configure(background=Background)
@@ -419,34 +434,34 @@ def DisplayStartWindow():
     # Creating menuFrame
     menuFrame = ttk.Frame(root, style='primary.TFrame')
     menuFrame.pack(pady=50)
-
-    backgroundImage = PhotoImage(file="MicrosoftTeams-image.png")
-    backgroundLabel = Label(menuFrame, image=backgroundImage)
-    #backgroundLabel.place(x=0, y=0, relwidth=1, relheight=1)
-
+    #Creating EntryFrame 
     entryFrame = ttk.Frame(menuFrame, style='secondary.TFrame')
     entryFrame.pack(padx=60, pady=60)
-
+    #Creating Product Frame
     productFrame = ttk.Frame(menuFrame, style='secondary.TFrame')
     productFrame.pack(padx=10, pady=10)
 
+    #Title
     ProjectLabel = ttk.Label(menuFrame, text='Question Automation Tool', font=HeaderFontStyle,
                              style='primary.Inverse.TLabel', borderwidth=0)
     ProjectLabel.place(x=120, y=10)
 
+    #Used to Set Theme
     clicked = StringVar()
     clicked.set("Themes")
 
+    #Dropdown menu contains all acceptable Themes
     drop = OptionMenu(root, clicked, *Themes,
                       command=(changeTheme)).place(x=850, y=10)
 
+    #Username Label and User Input inside Entry Frame
     UsernameLabel = ttk.Label(entryFrame, text='Username :',
                               style='secondary.Inverse.TLabel', font=LabelFontStyle)
     UsernameLabel.grid(row=1, column=1, padx=5, pady=5)
 
     UsernameInput = ttk.Entry(entryFrame, textvariable=Username_var,
                               style='primary.TEntry', width=25).grid(row=1, column=2, padx=5)
-
+    #Password Label and Password Input inside Entry Frame
     PasswordLabel = ttk.Label(entryFrame, text='Password :', font=LabelFontStyle,
                               style='secondary.Inverse.TLabel').grid(row=2, column=1, padx=10)
 
@@ -454,10 +469,12 @@ def DisplayStartWindow():
                               style='secondary.TEntry', width=25, show='*')
     PasswordInput.grid(row=2, column=2, padx=20)
 
+    #Toggle For Password
     check = ttk.Checkbutton(entryFrame, text='Show Password',
                             command=show, style='success.Roundtoggle.Toolbutton')
     check.grid(row=2, column=3, padx=10, pady=5)
 
+    #Category Label and Input inside of Product Frame
     CategoryLabel = ttk.Label(productFrame, text='Enter Category:',
                               style='secondary.Inverse.TLabel', font=LabelFontStyle).grid(row=1, column=1, padx=10, pady=10)
     CategoryInput = ttk.Combobox(productFrame, textvariable=Category_var,
@@ -466,15 +483,18 @@ def DisplayStartWindow():
     CategoryInput.grid(row=1, column=2, padx=10, pady=10)
     CategoryInput.bind('<<ComboboxSelected>>', UpdateProductList)
 
+    #Product Label and Input inside of Product Frame
     ProductLabel = ttk.Label(productFrame, text='Enter Product:',
                              style='secondary.Inverse.TLabel', font=LabelFontStyle).grid(row=2, column=1, padx=10, pady=10)
     ProductInput = ttk.Combobox(
         productFrame, textvariable=Product_var, style='primary.TCombobox', width=30)
     ProductInput.grid(row=2, column=2, padx=10, pady=10)
 
+    #Button calls browseFiles which opens the users Folders
     BrowseButton = ttk.Button(productFrame, text="Browse Files", command=(
         browseFiles), style='danger.TButton').grid(row=3, column=2, padx=5, pady=5)
 
+    #Starts The Auto Question Process
     Start = ttk.Button(root, text="Start", command=(
         LoginAndOpenQuestionInput), style="info.TButton", width=25).place(x=400, y=400)
     userPrefrences.close()
@@ -482,9 +502,10 @@ def DisplayStartWindow():
 
 
 def changeTheme(self):
-    global style, clicked, root,userPrefrences
+    #Used to set the Users Preferred theme then saves it for next time
+    global style, clicked, root, userPrefrences
     themeSet = clicked.get()
-    userPrefrences=open("user_prefrences.txt","w")
+    userPrefrences = open("user_prefrences.txt", "w")
     userPrefrences.write(themeSet)
     userPrefrences.close()
     style.theme_use(themeSet)
@@ -494,6 +515,7 @@ def changeTheme(self):
 
 
 def search_for_file_path():
+    #Opens the users Files
     global tempdir
     currdir = os.getcwd()
     tempdir = filedialog.askopenfilename(
@@ -504,6 +526,7 @@ def search_for_file_path():
 
 
 def browseFiles():
+    #Saves the File they Select for next step.
     search_for_file_path()
     global ExcelFileName
     ExcelFileName = tempdir
@@ -512,20 +535,25 @@ def browseFiles():
 
 
 def show():
+    #Shows Users Password
     PasswordInput.configure(show='')
     check.configure(command=hide, text='Hide Password')
 
 
 def hide():
+    #Hides Users Password
     PasswordInput.configure(show='*')
     check.configure(command=show, text='Show Password')
 
 
 def ErrorWindowDefault():
-    messagebox.showerror(title="Error", message=ErrorMessage +", Click OK to cycle to next question or Rerun Sheet")
+    #Displays an Error Message with explination of What occured
+    messagebox.showerror(title="Error", message=ErrorMessage +
+                         ", Click OK to cycle to next question or Rerun Sheet")
 
 
 def ResetWindow():
+    #Destroys the UI and Resets the Window for User when an Error Occurs
     root.destroy()
     DisplayStartWindow()
 
